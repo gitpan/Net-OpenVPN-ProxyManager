@@ -1,0 +1,11 @@
+Revision history for OpenVPN-ProxyManager
+
+0.011	16th February 2013
+		Minor release: added hyperlinks to documentation, renamed BUILD.PL to Build.PL as per CPAN installation bug-fix. Also separated OpenVPN::ProxyMananer::HMA into
+		it's own distribution.
+		
+0.01   	3rd February 2013
+		First cut:
+		ProxyManager  with test_openvpn, create_config, connect methods. 
+		Config with print_config
+		HMA (ProxyManager subclass) with get_server_list, parse_server_list_string, get_servers, get_hma_config, connect_to_random_server, hma_connect.

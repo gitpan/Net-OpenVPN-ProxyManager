@@ -1,0 +1,31 @@
+---
+abstract: 'connect to proxy servers using OpenVPN.'
+author:
+  - 'David Farrell <davidnmfarrell@gmail.com>'
+build_requires: {}
+configure_requires:
+  Module::Build: 0.4
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.112150'
+license: artistic
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Net-OpenVPN-ProxyManager
+provides:
+  Net::OpenVPN::ProxyManager:
+    file: lib/Net/OpenVPN/ProxyManager.pm
+    version: 0.011
+  Net::OpenVPN::ProxyManager::Config:
+    file: lib/Net/OpenVPN/ProxyManager/Config.pm
+    version: 0.01
+requires:
+  Capture::Tiny: 0.21
+  LWP::Simple: 6
+  Moose: 2.0603
+  Net::SSLeay: 1.48
+  Test::More: 0.98
+  perl: v5.10.0
+resources:
+  license: http://opensource.org/licenses/artistic-license.php
+version: 0.011
