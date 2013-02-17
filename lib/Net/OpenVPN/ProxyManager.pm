@@ -1,18 +1,27 @@
 package Net::OpenVPN::ProxyManager;
 use Moose;
 use 5.10.0;
+use lib '/home/sillymoose/projects/OpenVPN-ProxyManager/lib';
 use Net::OpenVPN::ProxyManager::Config;
 use Capture::Tiny 'capture';
 
-our $VERSION = '0.011';
+our $VERSION = '0.02';
 
 has config_path 	=> ( is => 'rw', isa => 'Str', default => '/tmp/openvpn-config.conf' );
 has config			=> ( is => 'rw', isa => 'Object', builder => 'create_config');
+has openvpn_pid		=> ( is => 'rw', isa => 'Str');
+
+sub BUILD {
+      my $self = shift;
+      if ( $> != 0 ) {
+          die 'ProxyManager object can only be initialized by root users - this is because OpenVPN requires root privileges to run';
+      }
+ }
 
 sub test_openvpn {
 	my ($self) = @_;
 	my  ($stdout, $stderr, @result) = capture { system 'which', 'openvpn'; };
-	$result[0] ? die qq!openvpn not found (are you using Linux?)! : 1;
+	$result[0] ? die qq!openvpn not found (is it in your PATH or a bin folder that is in PATH?)! : 1;
 	chomp $stdout;
 	return $stdout;
 }
@@ -34,8 +43,16 @@ sub connect {
 	$fh->close;
 	system 'chmod', '644', $self->config_path;
 	
-	# run openvpn
-	system 'sudo', $openvpn_path, '--config', $self->config_path;
+	# run openvpn in child process
+	defined( $self->openvpn_pid(fork()) ) or die "unable to fork new process and start OpenVPN $!\n";
+	if ($self->openvpn_pid() == 0) { 
+		exec $openvpn_path, '--config', $self->config_path;
+	}
+}
+
+sub disconnect {
+	my $self = shift;
+	kill 9, $self->openvpn_pid() if $self->openvpn_pid();
 }
 
 no Moose;
@@ -66,6 +83,8 @@ Net::OpenVPN::ProxyManager - connect to proxy servers using OpenVPN.
 Net::OpenVPN::ProxyManager is an object oriented module that provides methods to simplify the management of proxy connections that support OpenVPN. This is a 
 base generic class, see L<Net::OpenVPN::ProxyManager::HMA> for additional methods to interact with hidemyass.com proxy servers. 
 
+NB. ProxyManager objects can only be created by the root user, because OpenVPN runs as root. See L</"UNSATISFACTORY STUFF">
+
 =head1 DEPENDENCIES
 
 Non-Perl dependencies
@@ -79,12 +98,13 @@ You will also need an internet connection!
 
 =cut
 
-=head1 TO DO / UNSATISFACTORY STUFF
+=head1 UNSATISFACTORY STUFF
 
-By default OpenVPN runs as root and this module uses the 'sudo' command when starting OpenVPN. Ergh.
+By default OpenVPN runs as root so that it can modify the host computer's IP settings in establishing the VPN connection. Therefore this module requires Perl to be
+running with root privileges (so that it can connect and disconnect to multiple VPNs using OpenVPN). A Perl programm can be initialized as root by typing:
+	
+	sudo perl my_perl_program.pl
 
-The module only enables connection to one proxy server per invocation. OpenVPN only supports one connection per client, however I would like to change this to a 
-forked model where connections can be initialised and dropped without closing the whole process via a 'disconnect' method.
 
 =head1 AUTHOR
 

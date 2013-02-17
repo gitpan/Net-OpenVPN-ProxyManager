@@ -1,5 +1,8 @@
 Revision history for OpenVPN-ProxyManager
 
+0.02	16th February 2013
+		Have added a disconnect() method, and changed the connect/disconnect model to a forking approach to allow multiple connections to be established and dropped by a single Perl program.
+
 0.011	16th February 2013
 		Minor release: added hyperlinks to documentation, renamed BUILD.PL to Build.PL as per CPAN installation bug-fix. Also separated OpenVPN::ProxyMananer::HMA into
 		it's own distribution.
