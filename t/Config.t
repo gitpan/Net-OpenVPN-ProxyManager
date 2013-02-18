@@ -1,8 +1,3 @@
-# Add the lib to @INC
-use Cwd;
-my $cwd = cwd;
-unshift @INC, $cwd .= '/lib';
-
 use Test::More tests => 5;
 
 # Add a realistic multi-line value for OpenVPN config
@@ -37,5 +32,5 @@ open (my $fh, '>', '/tmp/proxymanager-config.cfg');
 use_ok ('Net::OpenVPN::ProxyManager::Config');
 ok (my $config = Net::OpenVPN::ProxyManager::Config->new, 'Config object initialisation');
 ok ($config->key($cert), 'Set multiline key value');
-ok ($config->print_config($cert) == 0, 'Check print_config failure with non filehandle argument');
-ok ($config->print_config($fh), 'Check config prints correctly');
+ok ($config->_print_config($cert) == 0, 'Check print_config failure with non filehandle argument');
+ok ($config->_print_config($fh), 'Check config prints correctly');

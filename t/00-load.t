@@ -4,10 +4,12 @@ use strict;
 use warnings FATAL => 'all';
 use Test::More;
 
-plan tests => 1;
+plan tests => 2;
 
 BEGIN {
-    use_ok( 'OpenVPN::ProxyManager' ) || print "Bail out!\n";
+    use_ok( 'Net::OpenVPN::ProxyManager' ) || print "Bail out!\n";
 }
-
-diag( "Testing OpenVPN::ProxyManager $OpenVPN::ProxyManager::VERSION, Perl $], $^X" );
+BEGIN {
+    use_ok( 'Net::OpenVPN::ProxyManager::Config' ) || print "Bail out!\n";
+}
+diag( "Testing Net::OpenVPN::ProxyManager $Net::OpenVPN::ProxyManager::VERSION, Perl $], $^X" );
