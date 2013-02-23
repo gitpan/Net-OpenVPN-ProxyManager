@@ -22,7 +22,6 @@
       "runtime" : {
          "requires" : {
             "Capture::Tiny" : "0.21",
-            "LWP::Simple" : "6",
             "Moose" : "2.0603",
             "Net::SSLeay" : "1.48",
             "Test::More" : "0.98",
@@ -33,7 +32,7 @@
    "provides" : {
       "Net::OpenVPN::ProxyManager" : {
          "file" : "lib/Net/OpenVPN/ProxyManager.pm",
-         "version" : "0.025"
+         "version" : "0.03"
       },
       "Net::OpenVPN::ProxyManager::Config" : {
          "file" : "lib/Net/OpenVPN/ProxyManager/Config.pm",
@@ -46,5 +45,5 @@
          "http://opensource.org/licenses/artistic-license.php"
       ]
    },
-   "version" : "0.025"
+   "version" : "0.03"
 }
