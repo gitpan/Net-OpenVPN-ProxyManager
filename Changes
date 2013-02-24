@@ -1,5 +1,8 @@
 Revision history for OpenVPN-ProxyManager
 
+0.031	24th February 2013
+		Updated POD.
+
 0.03	23rd February 2013
 		Added demolish method to ensure the closing of child processes (e.g. openvpn connections) before object destruction. Updated the connect method to check for an existing connection and disconnect from it if required. Updated dependency metadata. 		
 

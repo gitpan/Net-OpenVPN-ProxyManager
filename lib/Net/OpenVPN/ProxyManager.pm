@@ -4,86 +4,12 @@ use 5.10.0;
 use Net::OpenVPN::ProxyManager::Config;
 use Capture::Tiny 'capture';
 
-our $VERSION = '0.03';
+our $VERSION = '0.031';
 
 has config_path 	=> ( is => 'rw', isa => 'Str', default => '/tmp/openvpn-config.conf' );
 has config			=> ( is => 'rw', isa => 'Object', builder => 'create_config');
 has openvpn_pid		=> ( is => 'rw', isa => 'Str');
 has warning_flag	=> ( is => 'rw', isa => 'Int', default => 1);
-
-sub connect{
-	my ($self, $config_string) = @_;
-	
-	# disconnect from an existing connection
-	$self->disconnect if $self->openvpn_pid;
-
-	# check for root privileges
-	if ($> != 0) {
-		$self->_give_warning('Connecting as non-root user. By default OpenVPN requires root privileges and unless locally configured otherwise, will not work without them.');	
-	}
-	
-	# check openvpn is installed and get the path
-	my $openvpn_path = $self->_test_openvpn;
-	
-	# open FH and print config file to /tmp
-	open (my $fh, '>', $self->config_path() ); 
-	$self->config()->_print_config($fh, $config_string);
-	$fh->close;
-	system 'chmod', '644', $self->config_path;
-	
-	# run openvpn in child process
-	defined( $self->openvpn_pid(fork()) ) or die "unable to fork new process and start OpenVPN $!\n";
-	if ($self->openvpn_pid() == 0) { 
-		exec $openvpn_path, '--config', $self->config_path;
-	}
-}
-
-sub create_config{
-	my ($self, $params) = @_;
-	ref $params eq 'HASH' ? Net::OpenVPN::ProxyManager::Config->new($params) : Net::OpenVPN::ProxyManager::Config->new;
-}
-
-sub disconnect{
-	my $self = shift;
-	if ($self->openvpn_pid){
-		kill 0, $self->openvpn_pid ? kill 2, $self->openvpn_pid() : $self->_give_warning('Error: do not have enough privileges to stop the OpenVPN process.'); 
-	}
-	else {
-		$self->_give_warning('No PID found for an active OpenVPN connection');	
-	}
-}
-
-sub _give_warning{
-	my ($self, $warning_msg) = @_;
-	if ($self->warning_flag() == 1) {
-		warn $warning_msg;
-	}
-}
-
-sub _test_openvpn{
-	my ($self) = @_;
-	my  ($stdout, $stderr, @result) = capture { system 'which', 'openvpn'; };
-	$result[0] ? die qq!openvpn not found (is it in your PATH or a bin folder that is in PATH?)! : 1;
-	chomp $stdout;
-	return $stdout;
-}
-
-sub toggle_warnings{
-	my $self = shift;
-	$self->warning_flag() ? $self->warning_flag(0) : $self->warning_flag(1);
-}
-
-sub demolish{
-	my $self = shift;
-	$self->disconnect if $self->openvpn_pid;
-}
-
-no Moose;
-1;
-
-__END__
-
-=pod
 
 =head1 NAME
 
@@ -114,38 +40,140 @@ base generic class, see L<Net::OpenVPN::ProxyManager::HMA> for additional method
 NB. By default OpenVPN requires root privileges to run unless locally configured otherwise. ProxyManager connect and disconnect methods will check for root privileges 
 and warn if they are not found. For further information see L</"UNSATISFACTORY STUFF">.
 
+=cut
+
 =head1 METHODS
 
 =head2 new 
+
 The constructor accepts an anonymous hash for two optional parameters: config_path and warning_flag. 
 
-config_path is the path that ProxyManager.pm will use to create the config file when the create_config method is called. By default config_path is set to 
-'/tmp/openvpn-config.conf'. 
+=over
 
-warning_flag is an integer (either 0 or 1) and used by ProxyManager.pm to determine whether to issue a warning or not. By default it is set to 1. The toggle_warnings
-method can also turn this on or off.
+=item*
+
+config_path is the path that ProxyManager.pm will use to create the config file when the create_config method is called. By default config_path is set to '/tmp/openvpn-config.conf'. 
+
+=item*
+
+warning_flag is an integer (either 0 or 1) and used by ProxyManager.pm to determine whether to issue a warning or not. By default it is set to 1. The toggle_warnings method can also turn this on or off.
+
+=back
+
+=pod
 
 	my $pm = Net::OpenVPN::ProxyManager->new( { config_path => '/tmp/my_own_directory.conf', warning_flag => 0 } );
-	
+
+=cut
 	
 =head2 connect
+
 Initialises OpenVPN and connects the proxy server specified in $config_object. See create_config for how to create and configure a config object.
+	
 	$pm->connect($config_object);
 
-=head2 disconnect
-Disconnects from the proxy server by killing the OpenVPN process.
-	$pm->disconnect();
+=cut
+
+sub connect{
+	my ($self, $config_string) = @_;
+	
+	# disconnect from an existing connection
+	$self->disconnect if $self->openvpn_pid;
+
+	# check for root privileges
+	if ($> != 0) {
+		$self->_give_warning('Connecting as non-root user. By default OpenVPN requires root privileges and unless locally configured otherwise, will not work without them.');	
+	}
+	
+	# check openvpn is installed and get the path
+	my $openvpn_path = $self->_test_openvpn;
+	
+	# open FH and print config file to /tmp
+	open (my $fh, '>', $self->config_path() ); 
+	$self->config()->_print_config($fh, $config_string);
+	$fh->close;
+	system 'chmod', '644', $self->config_path;
+	
+	# run openvpn in child process
+	defined( $self->openvpn_pid(fork()) ) or die "unable to fork new process and start OpenVPN $!\n";
+	if ($self->openvpn_pid() == 0) { 
+		exec $openvpn_path, '--config', $self->config_path;
+	}
+}
 
 =head2 create_config
+
 Creates a config object with sensible defaults. create_config does require ip address, port and protocol parameters.
+
 	my $config_object = $pm->create_config({remote => '100.120.3.34 53', proto => 'udp'});
 
+=cut
+
+sub create_config{
+	my ($self, $params) = @_;
+	ref $params eq 'HASH' ? Net::OpenVPN::ProxyManager::Config->new($params) : Net::OpenVPN::ProxyManager::Config->new;
+}
+
+
+=head2 disconnect
+
+Disconnects from the proxy server by killing the OpenVPN process.
+
+	$pm->disconnect();
+
+=cut
+
+sub disconnect{
+	my $self = shift;
+	if ($self->openvpn_pid){
+		kill 0, $self->openvpn_pid ? kill 2, $self->openvpn_pid() : $self->_give_warning('Error: do not have enough privileges to stop the OpenVPN process.'); 
+	}
+	else {
+		$self->_give_warning('No PID found for an active OpenVPN connection');	
+	}
+}
+
 =head2 toggle_warnings
+
 Will turn warnings on / off.
+
 	$pm->toggle_warnings();
 
+=cut
+
+sub toggle_warnings{
+	my $self = shift;
+	$self->warning_flag() ? $self->warning_flag(0) : $self->warning_flag(1);
+}
+
 =head2 demolish
+
 This method is called on object destruction and it will call the disconnect method if any active connections are found.
+
+=cut
+
+sub demolish{
+	my $self = shift;
+	$self->disconnect if $self->openvpn_pid;
+}
+
+sub _give_warning{
+	my ($self, $warning_msg) = @_;
+	if ($self->warning_flag() == 1) {
+		warn $warning_msg;
+	}
+}
+
+sub _test_openvpn{
+	my ($self) = @_;
+	my  ($stdout, $stderr, @result) = capture { system 'which', 'openvpn'; };
+	$result[0] ? die qq!openvpn not found (is it in your PATH or a bin folder that is in PATH?)! : 1;
+	chomp $stdout;
+	return $stdout;
+}
+
+no Moose;
+1;
 
 =head1 DEPENDENCIES
 

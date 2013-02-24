@@ -32,7 +32,7 @@
    "provides" : {
       "Net::OpenVPN::ProxyManager" : {
          "file" : "lib/Net/OpenVPN/ProxyManager.pm",
-         "version" : "0.03"
+         "version" : "0.031"
       },
       "Net::OpenVPN::ProxyManager::Config" : {
          "file" : "lib/Net/OpenVPN/ProxyManager/Config.pm",
@@ -45,5 +45,5 @@
          "http://opensource.org/licenses/artistic-license.php"
       ]
    },
-   "version" : "0.03"
+   "version" : "0.031"
 }

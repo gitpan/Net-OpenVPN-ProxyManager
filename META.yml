@@ -15,7 +15,7 @@ name: Net-OpenVPN-ProxyManager
 provides:
   Net::OpenVPN::ProxyManager:
     file: lib/Net/OpenVPN/ProxyManager.pm
-    version: 0.03
+    version: 0.031
   Net::OpenVPN::ProxyManager::Config:
     file: lib/Net/OpenVPN/ProxyManager/Config.pm
     version: 0.01
@@ -27,4 +27,4 @@ requires:
   perl: v5.10.0
 resources:
   license: http://opensource.org/licenses/artistic-license.php
-version: 0.03
+version: 0.031
