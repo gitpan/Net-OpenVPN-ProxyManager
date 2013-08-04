@@ -1,8 +1,6 @@
-Build.PL
 Changes
 ignore.txt
 lib/Net/OpenVPN/ProxyManager.pm
-lib/Net/OpenVPN/ProxyManager/Config.pm
 LICENSE
 MANIFEST			This list of files
 META.json
@@ -11,7 +9,7 @@ README
 t/.hidden
 t/00-load.t
 t/boilerplate.t
-t/Config.t
 t/manifest.t
 t/pod-coverage.t
 t/pod.t
+t/ProxyManager.t

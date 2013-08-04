@@ -1,19 +1,28 @@
 Revision history for OpenVPN-ProxyManager
 
-0.031	24th February 2013
-		Updated POD.
+0.04    3/8/2013
+        -Fixed connect and disconnect methods to avoid zombie processes.
+        -Removed ProxyManager::HMA and ProxyManager::Config objects.
+        -Removed unnecessary methods _test_openvpn, create_config.
+        -Updated connect to use filepath to an openvpn config file.
+        -Converted from Moose to Moo.
+        -Changed to make maker from Module::Build.
+        -Removed Capture::Tiny dependency.
 
-0.03	23rd February 2013
-		Added demolish method to ensure the closing of child processes (e.g. openvpn connections) before object destruction. Updated the connect method to check for an existing connection and disconnect from it if required. Updated dependency metadata. 		
+0.031	24/2/2013
+		-Updated POD.
 
-0.02	16th February 2013
-		Have added a disconnect() method, and changed the connect/disconnect model to a forking approach to allow multiple connections to be established and dropped by a single Perl program.
+0.03	23/2/2013
+		-Added demolish method to ensure the closing of child processes (e.g. openvpn connections) before object destruction. 
+        -Updated the connect method to check for an existing connection and disconnect from it if required. Updated dependency metadata. 		
 
-0.011	16th February 2013
-		Minor release: added hyperlinks to documentation, renamed BUILD.PL to Build.PL as per CPAN installation bug-fix. Also separated OpenVPN::ProxyMananer::HMA into it's own distribution.
+0.02	16/2/2013
+		-Added a disconnect() method.
+        -Changed the connect/disconnect model to a forking approach to allow multiple connections to be established and dropped by a single Perl program.
+
+0.011	16/2/2013
+		-Added hyperlinks to documentation.
+        -Renamed BUILD.PL to Build.PL as per CPAN installation bug-fix.
 		
-0.01   	3rd February 2013
-		First cut:
-		ProxyManager  with test_openvpn, create_config, connect methods. 
-		Config with print_config
-		HMA (ProxyManager subclass) with get_server_list, parse_server_list_string, get_servers, get_hma_config, connect_to_random_server, hma_connect.
+0.01   	3/2/2013
+		-ProxyManager class with test_openvpn, create_config, connect methods. 
